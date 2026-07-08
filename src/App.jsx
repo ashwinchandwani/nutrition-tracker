@@ -177,6 +177,11 @@ function App() {
 ];
 
   const [photo, setPhoto] = useState("");
+
+  const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
+
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([
     {
@@ -207,24 +212,107 @@ function App() {
       return mealsForDate.reduce(
         function (sum, meal) {
           return {
-            protein: sum.protein + Number(meal.protein),
-            carbs: sum.carbs + Number(meal.carbs),
-            fat: sum.fat + Number(meal.fat),
-            calories: sum.calories + Number(meal.calories)
+            protein: sum.protein + Number(meal.protein || 0),
+            carbs: sum.carbs + Number(meal.carbs || 0),
+            fat: sum.fat + Number(meal.fat || 0),
+            calories: sum.calories + Number(meal.calories || 0),
+
+            fiber: sum.fiber + Number(meal.fiber || 0),
+            sugar: sum.sugar + Number(meal.sugar || 0),
+            sodium: sum.sodium + Number(meal.sodium || 0),
+            calcium: sum.calcium + Number(meal.calcium || 0),
+            iron: sum.iron + Number(meal.iron || 0),
+            potassium: sum.potassium + Number(meal.potassium || 0)
           };
+
         },
         {
           protein: 0,
           carbs: 0,
           fat: 0,
-          calories: 0
+          calories: 0,
+
+          fiber: 0,
+          sugar: 0,
+          sodium: 0,
+          calcium: 0,
+          iron: 0,
+          potassium: 0
         }
       );
     },
     [mealsForDate]
   );
 
-  
+  const nutritionScore = useMemo(
+    function () {
+      let score = 0;
+
+      if (totals.protein >= Number(profile.proteinGoal || 0))
+        score += 30;
+
+      if (totals.fiber >= 25)
+        score += 20;
+
+      if (totals.sodium <= 2300)
+        score += 15;
+
+      if (
+        totals.calories >= Number(profile.calorieGoal || 0) * 0.9 &&
+        totals.calories <= Number(profile.calorieGoal || 0) * 1.1
+      )
+        score += 25;
+
+      if (totals.sugar <= 50)
+        score += 10;
+
+      return score;
+    },
+    [totals, profile]
+  );
+
+  const sevenDayTrend = useMemo(
+  function () {
+    const days = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date();
+      day.setDate(day.getDate() - i);
+
+      const dateKey = day.toISOString().slice(0, 10);
+
+      const mealsForThisDay = meals.filter(function (meal) {
+        return meal.date === dateKey;
+      });
+
+      const dayTotals = mealsForThisDay.reduce(
+        function (sum, meal) {
+          return {
+            calories: sum.calories + Number(meal.calories || 0),
+            protein: sum.protein + Number(meal.protein || 0)
+          };
+        },
+        {
+          calories: 0,
+          protein: 0
+        }
+      );
+
+      days.push({
+        date: dateKey,
+        label: day.toLocaleDateString([], {
+          weekday: "short"
+        }),
+        calories: dayTotals.calories,
+        protein: dayTotals.protein
+      });
+    }
+
+    return days;
+  },
+  [meals]
+);
+
   function selectQuickFood(food) {
   setForm({
     ...form,
@@ -306,6 +394,68 @@ function App() {
 
     reader.readAsDataURL(file);
   }
+
+  function analyzeMealPhoto() {
+  if (!photo) {
+    alert("Please upload a meal photo first.");
+    return;
+  }
+
+  setIsAnalyzingPhoto(true);
+
+  // Temporary AI placeholder.
+  // Later this will call a backend AI vision API.
+  setTimeout(function () {
+    setAiAnalysis({
+      foodName: "Chia Pudding with Berries",
+      calories: 450,
+      protein: 12,
+      carbs: 42,
+      fat: 22,
+      fiber: 15,
+      sugar: 12,
+      sodium: 120,
+      calcium: 180,
+      iron: 3,
+      potassium: 450,
+      confidence: 75
+    });
+
+    setChatMessages([
+      ...chatMessages,
+      {
+        from: "Coach",
+        text:
+          "I detected " +
+          "Chia Pudding with Berries" +
+          " with approximately 75% confidence. Please review the estimate before accepting it."
+      }
+    ]);
+
+    setIsAnalyzingPhoto(false);
+  }, 1000);
+}
+
+  function acceptAiAnalysis() {
+  if (!aiAnalysis) return;
+
+  setForm({
+    ...form,
+    foodName: aiAnalysis.foodName,
+    protein: aiAnalysis.protein,
+    carbs: aiAnalysis.carbs,
+    fat: aiAnalysis.fat,
+    calories: aiAnalysis.calories,
+    fiber: aiAnalysis.fiber,
+    sugar: aiAnalysis.sugar,
+    sodium: aiAnalysis.sodium,
+    calcium: aiAnalysis.calcium,
+    iron: aiAnalysis.iron,
+    potassium: aiAnalysis.potassium
+  });
+
+  setAiAnalysis(null);
+}
 
   function calculateCalories() {
     if (form.calories !== "") {
@@ -608,7 +758,110 @@ function App() {
             <p>Fat</p>
             <h2>{totals.fat.toFixed(1)}g</h2>
           </div>
+          
+          <div style={cardStyle}>
+            <p>Advanced Nutrition</p>
+
+            <p>Fiber: {totals.fiber.toFixed(1)}g</p>
+            <p>Sugar: {totals.sugar.toFixed(1)}g</p>
+            <p>Sodium: {totals.sodium.toFixed(0)}mg</p>
+            <p>Potassium: {totals.potassium.toFixed(0)}mg</p>
+            <p>Calcium: {totals.calcium.toFixed(0)}mg</p>
+            <p>Iron: {totals.iron.toFixed(1)}mg</p>
+          </div>
+
+          <div style={cardStyle}>
+            <p>Nutrition Score</p>
+
+            <h2>{nutritionScore}/100</h2>
+
+            <p>
+              {nutritionScore >= 80
+                ? "Excellent"
+                : nutritionScore >= 60
+                ? "Good"
+                : "Needs Improvement"}
+            </p>
+          </div>
+
+          <div style={cardStyle}>
+            <h2>7-Day Trend</h2>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "end",
+                gap: "12px",
+                height: "180px",
+                marginTop: "20px",
+                borderBottom: "1px solid #cbd5e1",
+                paddingBottom: "8px"
+              }}
+            >
+              {sevenDayTrend.map(function (day) {
+                const calorieHeight =
+                  profile.calorieGoal > 0
+                    ? Math.min((day.calories / profile.calorieGoal) * 140, 140)
+                    : 0;
+
+                return (
+                  <div
+                    key={day.date}
+                    style={{
+                      flex: 1,
+                      textAlign: "center"
+                    }}
+                  >
+                    <div
+                      title={`${day.calories} calories, ${day.protein.toFixed(1)}g protein`}
+                      style={{
+                        height: `${calorieHeight}px`,
+                        background:
+                          "linear-gradient(180deg, #22c55e 0%, #2563eb 100%)",
+                        borderRadius: "10px 10px 4px 4px",
+                        marginBottom: "8px",
+                        minHeight: day.calories > 0 ? "10px" : "0px"
+                      }}
+                    />
+
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        margin: "0",
+                        color: "#475569",
+                        fontWeight: "700"
+                      }}
+                    >
+                      {day.label}
+                    </p>
+
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        margin: "4px 0 0",
+                        color: "#64748b"
+                      }}
+                    >
+                      {day.calories}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#64748b",
+                marginTop: "12px"
+              }}
+            >
+              Bar height shows calories vs your daily calorie goal. Hover to see protein.
+            </p>
+          </div>
         </div>
+
+
 
         <div
           style={{
@@ -782,6 +1035,68 @@ function App() {
                   marginBottom: "12px"
                 }}
               />
+            )}
+
+
+            {photo && (
+              <button
+                type="button"
+                onClick={analyzeMealPhoto}
+                disabled={isAnalyzingPhoto}
+                style={{
+                  ...buttonStyle,
+                  width: "100%",
+                  marginBottom: "16px",
+                  background: isAnalyzingPhoto
+                    ? "#94a3b8"
+                    : "linear-gradient(135deg,#7c3aed,#2563eb)"
+                }}
+              >
+                {isAnalyzingPhoto
+                  ? "Analyzing Meal..."
+                  : "Analyze Meal Photo"}
+              </button>
+            )}
+
+            {aiAnalysis && (
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  marginBottom: "16px"
+                }}
+              >
+                <h3>🤖 AI Analysis</h3>
+
+                <p>
+                  <strong>Detected Food:</strong> {aiAnalysis.foodName}
+                </p>
+
+                <p>
+                  <strong>Confidence:</strong> {aiAnalysis.confidence}%
+                </p>
+
+                <p>Calories: {aiAnalysis.calories}</p>
+
+                <p>Protein: {aiAnalysis.protein}g</p>
+
+                <p>Carbs: {aiAnalysis.carbs}g</p>
+
+                <p>Fat: {aiAnalysis.fat}g</p>
+
+                <button
+                  type="button"
+                  onClick={acceptAiAnalysis}
+                  style={{
+                    ...buttonStyle,
+                    marginTop: "10px"
+                  }}
+                >
+                  Accept Analysis
+                </button>
+              </div>
             )}
 
             <label>Notes</label>
