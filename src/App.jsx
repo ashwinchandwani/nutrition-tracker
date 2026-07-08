@@ -654,12 +654,19 @@ function App() {
             <label>Food Name</label>
             <input
               style={inputStyle}
+              list="food-options"
               value={form.foodName}
-              placeholder="Example: chicken rice bowl"
+              placeholder="Search food, example: chicken"
               onChange={function (event) {
                 setForm({ ...form, foodName: event.target.value });
               }}
             />
+
+            <datalist id="food-options">
+              {quickFoods.map(function (food) {
+                return <option key={food.name} value={food.name} />;
+              })}
+            </datalist>
 
             <label>Quantity</label>
             <p
