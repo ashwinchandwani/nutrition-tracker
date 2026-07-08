@@ -39,6 +39,137 @@ function App() {
     notes: ""
   });
 
+  const quickFoods = [
+  {
+    emoji: "🍗",
+    name: "Chicken Breast",
+    servingSize: 100,
+    unit: "g",
+    protein: 31,
+    carbs: 0,
+    fat: 3.6,
+    calories: 165,
+    fiber: 0,
+    sugar: 0,
+    sodium: 74,
+    calcium: 15,
+    iron: 1,
+    potassium: 256
+  },
+  {
+    emoji: "🥚",
+    name: "Egg",
+    servingSize: 1,
+    unit: "egg",
+    protein: 6,
+    carbs: 0.6,
+    fat: 5,
+    calories: 72,
+    fiber: 0,
+    sugar: 0.4,
+    sodium: 71,
+    calcium: 28,
+    iron: 0.9,
+    potassium: 69
+  },
+  {
+    emoji: "🥣",
+    name: "Greek Yogurt",
+    servingSize: 100,
+    unit: "g",
+    protein: 10,
+    carbs: 3.6,
+    fat: 0.4,
+    calories: 59,
+    fiber: 0,
+    sugar: 3.2,
+    sodium: 36,
+    calcium: 110,
+    iron: 0,
+    potassium: 141
+  },
+  {
+    emoji: "🥛",
+    name: "Protein Shake",
+    servingSize: 1,
+    unit: "scoop",
+    protein: 25,
+    carbs: 3,
+    fat: 2,
+    calories: 130,
+    fiber: 1,
+    sugar: 1,
+    sodium: 160,
+    calcium: 120,
+    iron: 1,
+    potassium: 180
+  },
+  {
+    emoji: "🍚",
+    name: "Rice",
+    servingSize: 100,
+    unit: "g",
+    protein: 2.7,
+    carbs: 28,
+    fat: 0.3,
+    calories: 130,
+    fiber: 0.4,
+    sugar: 0.1,
+    sodium: 1,
+    calcium: 10,
+    iron: 0.2,
+    potassium: 35
+  },
+  {
+    emoji: "🍌",
+    name: "Banana",
+    servingSize: 1,
+    unit: "medium",
+    protein: 1.3,
+    carbs: 27,
+    fat: 0.3,
+    calories: 105,
+    fiber: 3.1,
+    sugar: 14.4,
+    sodium: 1,
+    calcium: 6,
+    iron: 0.3,
+    potassium: 422
+  },
+  {
+    emoji: "🐟",
+    name: "Salmon",
+    servingSize: 100,
+    unit: "g",
+    protein: 22,
+    carbs: 0,
+    fat: 12,
+    calories: 208,
+    fiber: 0,
+    sugar: 0,
+    sodium: 59,
+    calcium: 9,
+    iron: 0.3,
+    potassium: 363
+  },
+  {
+    emoji: "🥔",
+    name: "Potato",
+    servingSize: 100,
+    unit: "g",
+    protein: 2,
+    carbs: 17,
+    fat: 0.1,
+    calories: 77,
+    fiber: 2.2,
+    sugar: 0.8,
+    sodium: 6,
+    calcium: 12,
+    iron: 0.8,
+    potassium: 425
+  }
+];
+
   const [photo, setPhoto] = useState("");
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([
@@ -86,6 +217,73 @@ function App() {
     },
     [mealsForDate]
   );
+
+  
+  function selectQuickFood(food) {
+  setForm({
+    ...form,
+    foodName: food.name,
+    quantity: String(food.servingSize),
+    protein: food.protein,
+    carbs: food.carbs,
+    fat: food.fat,
+    calories: food.calories,
+    fiber: food.fiber,
+    sugar: food.sugar,
+    sodium: food.sodium,
+    calcium: food.calcium,
+    iron: food.iron,
+    potassium: food.potassium
+  });
+}
+
+  function calculateNutritionFromFoodName() {
+  const searchText = form.foodName.trim().toLowerCase();
+
+  if (searchText === "") {
+    alert("Enter a food name first.");
+    return;
+  }
+
+  const matchedFood = quickFoods.find(function (food) {
+    return (
+      food.name.toLowerCase().includes(searchText) ||
+      searchText.includes(food.name.toLowerCase())
+    );
+  });
+
+  if (!matchedFood) {
+    alert(
+      "Food not found in the current library. Try Chicken Breast, Egg, Rice, Greek Yogurt, Protein Shake, Banana, Salmon, or Potato."
+    );
+    return;
+  }
+
+  const quantity = Number(form.quantity || matchedFood.servingSize);
+
+  if (!quantity || quantity <= 0) {
+    alert("Enter a valid quantity.");
+    return;
+  }
+
+  const scaleFactor = quantity / matchedFood.servingSize;
+
+  setForm({
+    ...form,
+    foodName: matchedFood.name,
+    quantity: String(quantity),
+    protein: (matchedFood.protein * scaleFactor).toFixed(1),
+    carbs: (matchedFood.carbs * scaleFactor).toFixed(1),
+    fat: (matchedFood.fat * scaleFactor).toFixed(1),
+    calories: Math.round(matchedFood.calories * scaleFactor),
+    fiber: (matchedFood.fiber * scaleFactor).toFixed(1),
+    sugar: (matchedFood.sugar * scaleFactor).toFixed(1),
+    sodium: Math.round(matchedFood.sodium * scaleFactor),
+    calcium: Math.round(matchedFood.calcium * scaleFactor),
+    iron: (matchedFood.iron * scaleFactor).toFixed(1),
+    potassium: Math.round(matchedFood.potassium * scaleFactor)
+  });
+}
 
   function handlePhotoUpload(event) {
     const file = event.target.files[0];
@@ -403,7 +601,32 @@ function App() {
         >
           <div style={cardStyle}>
             <h2>Add Meal</h2>
-
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                marginBottom: "16px"
+              }}
+            >
+              {quickFoods.map((food) => (
+                <button
+                  key={food.name}
+                  type="button"
+                  onClick={() => selectQuickFood(food)}
+                  style={{
+                    background: "#f8fafc",
+                    border: "1px solid #cbd5e1",
+                    borderRadius: "999px",
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    fontWeight: "600"
+                  }}
+                >
+                  {food.emoji} {food.name}
+                </button>
+              ))}
+            </div>
             <label>Date</label>
             <input
               style={inputStyle}
@@ -439,15 +662,39 @@ function App() {
             />
 
             <label>Quantity</label>
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#64748b",
+                marginTop: "2px",
+                marginBottom: "12px"
+              }}
+            >
+              Enter grams (example: 250)
+            </p>
+
             <input
               style={inputStyle}
               value={form.quantity}
-              placeholder="Example: 1 bowl, 250g, 2 eggs"
+              placeholder="100"
               onChange={function (event) {
                 setForm({ ...form, quantity: event.target.value });
               }}
             />
-
+            
+            <button
+              type="button"
+              onClick={calculateNutritionFromFoodName}
+              style={{
+                ...buttonStyle,
+                width: "100%",
+                marginBottom: "16px",
+                background: "linear-gradient(135deg,#16a34a,#22c55e)"
+              }}
+            >
+              Calculate Nutrition
+            </button>
+        
             <label>Protein (g)</label>
             <input
               style={inputStyle}
