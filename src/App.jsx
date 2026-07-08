@@ -207,31 +207,52 @@ function App() {
   }
 
   const cardStyle = {
-    backgroundColor: "white",
-    padding: "18px",
-    borderRadius: "14px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    marginBottom: "16px"
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    padding: "22px",
+    borderRadius: "24px",
+    boxShadow: "0 20px 45px rgba(15, 23, 42, 0.10)",
+    border: "1px solid rgba(226, 232, 240, 0.9)",
+    marginBottom: "18px",
+    backdropFilter: "blur(14px)"
+  };
+
+  const heroStyle = {
+    background:
+      "linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%)",
+    color: "white",
+    borderRadius: "30px",
+    padding: "30px",
+    marginBottom: "22px",
+    boxShadow: "0 24px 60px rgba(15, 23, 42, 0.25)",
+    position: "relative",
+    overflow: "hidden"
   };
 
   const inputStyle = {
     width: "100%",
-    padding: "10px",
-    marginTop: "6px",
-    marginBottom: "12px",
-    borderRadius: "8px",
-    border: "1px solid #cccccc",
-    boxSizing: "border-box"
+    padding: "12px 14px",
+    marginTop: "7px",
+    marginBottom: "14px",
+    borderRadius: "14px",
+    border: "1px solid #cbd5e1",
+    boxSizing: "border-box",
+    backgroundColor: "#ffffff",
+    color: "#0f172a",
+    fontSize: "15px",
+    outline: "none",
+    boxShadow: "inset 0 1px 2px rgba(15, 23, 42, 0.06)"
   };
 
   const buttonStyle = {
-    backgroundColor: "#2563eb",
+    background:
+      "linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%)",
     color: "white",
     border: "none",
-    padding: "10px 14px",
-    borderRadius: "8px",
+    padding: "12px 18px",
+    borderRadius: "14px",
     cursor: "pointer",
-    fontWeight: "bold"
+    fontWeight: "800",
+    boxShadow: "0 12px 24px rgba(37, 99, 235, 0.28)"
   };
 
   return (
@@ -244,8 +265,47 @@ function App() {
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <h1>Ashwin's Nutrition Tracker V2</h1>
-        <p>Track meals, macros, photos, goals, and basic nutrition guidance.</p>
+        <div style={heroStyle}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              backgroundColor: "rgba(255,255,255,0.14)",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: "999px",
+              fontSize: "13px",
+              fontWeight: "700",
+              marginBottom: "16px"
+            }}
+          >
+            🥗 Personal Nutrition Dashboard
+          </div>
+
+          <h1
+            style={{
+              color: "white",
+              fontSize: "42px",
+              lineHeight: "1.05",
+              marginBottom: "10px",
+              letterSpacing: "-0.04em"
+            }}
+          >
+            NutriPilot
+          </h1>
+
+          <p
+            style={{
+              color: "#dbeafe",
+              fontSize: "18px",
+              maxWidth: "720px",
+              marginBottom: "0"
+            }}
+          >
+            Track meals, photos, macros, calories, goals, and daily nutrition decisions in one clean dashboard.
+          </p>
+        </div>
 
         <div
           style={{
