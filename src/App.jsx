@@ -36,6 +36,12 @@ function App() {
     carbs: "",
     fat: "",
     calories: "",
+    fiber: "",
+    sugar: "",
+    sodium: "",
+    calcium: "",
+    iron: "",
+    potassium: "",
     notes: ""
   });
 
@@ -333,6 +339,12 @@ function App() {
       carbs: Number(form.carbs || 0),
       fat: Number(form.fat || 0),
       calories: Math.round(calculateCalories()),
+      fiber: Number(form.fiber || 0),
+      sugar: Number(form.sugar || 0),
+      sodium: Number(form.sodium || 0),
+      calcium: Number(form.calcium || 0),
+      iron: Number(form.iron || 0),
+      potassium: Number(form.potassium || 0),
       notes: form.notes,
       photo: photo
     };
@@ -347,6 +359,12 @@ function App() {
       carbs: "",
       fat: "",
       calories: "",
+      fiber: "",
+      sugar: "",
+      sodium: "",
+      calcium: "",
+      iron: "",
+      potassium: "",
       notes: ""
     });
 
@@ -852,6 +870,13 @@ function App() {
                   <p>{meal.quantity} | {meal.time}</p>
                   <p>
                     Protein: {meal.protein}g | Carbs: {meal.carbs}g | Fat: {meal.fat}g | Calories: {meal.calories}
+                  </p>
+                  <p>
+                    Fiber: {meal.fiber || 0}g | Sugar: {meal.sugar || 0}g | Sodium: {meal.sodium || 0}mg
+                  </p>
+
+                  <p>
+                    Calcium: {meal.calcium || 0}mg | Iron: {meal.iron || 0}mg | Potassium: {meal.potassium || 0}mg
                   </p>
 
                   {meal.notes && <p>Notes: {meal.notes}</p>}
