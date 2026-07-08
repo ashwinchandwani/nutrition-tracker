@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-
+import { analyzePhoto } from "./services/aiService";
 function App() {
   const today = new Date().toISOString().slice(0, 10);
 
@@ -395,7 +395,7 @@ function App() {
     reader.readAsDataURL(file);
   }
 
-  function analyzeMealPhoto() {
+  async function analyzeMealPhoto() {
   if (!photo) {
     alert("Please upload a meal photo first.");
     return;
@@ -403,23 +403,10 @@ function App() {
 
   setIsAnalyzingPhoto(true);
 
-  // Temporary AI placeholder.
-  // Later this will call a backend AI vision API.
-  setTimeout(function () {
-    setAiAnalysis({
-      foodName: "Chia Pudding with Berries",
-      calories: 450,
-      protein: 12,
-      carbs: 42,
-      fat: 22,
-      fiber: 15,
-      sugar: 12,
-      sodium: 120,
-      calcium: 180,
-      iron: 3,
-      potassium: 450,
-      confidence: 75
-    });
+  try {
+    const result = await analyzePhoto(photo);
+
+    setAiAnalysis(result);
 
     setChatMessages([
       ...chatMessages,
@@ -427,13 +414,26 @@ function App() {
         from: "Coach",
         text:
           "I detected " +
-          "Chia Pudding with Berries" +
-          " with approximately 75% confidence. Please review the estimate before accepting it."
+          result.foodName +
+          " with approximately " +
+          result.confidence +
+          "% confidence. Please review the estimate before accepting it."
       }
     ]);
+  } catch (error) {
+    alert("Something went wrong while analyzing the photo.");
 
-    setIsAnalyzingPhoto(false);
-  }, 1000);
+    setChatMessages([
+      ...chatMessages,
+      {
+        from: "Coach",
+        text:
+          "I could not analyze the photo. Please try again or enter the meal manually."
+      }
+    ]);
+  }
+
+  setIsAnalyzingPhoto(false);
 }
 
   function acceptAiAnalysis() {
