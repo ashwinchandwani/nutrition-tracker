@@ -310,6 +310,65 @@ function App() {
         <div
           style={{
             display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+            gap: "16px",
+            marginBottom: "24px"
+          }}
+        >
+          <div style={cardStyle}>
+            <h3>💪 Protein Progress</h3>
+            <div
+              style={{
+                width: "100%",
+                height: "10px",
+                background: "#e2e8f0",
+                borderRadius: "999px",
+                overflow: "hidden"
+              }}
+            >
+              <div
+                style={{
+                  width: `${Math.min(
+                    (totals.protein / profile.proteinGoal) * 100,
+                    100
+                  )}%`,
+                  height: "100%",
+                  background: "linear-gradient(90deg,#22c55e,#16a34a)"
+                }}
+              />
+            </div>
+
+            <p style={{ marginTop: "8px" }}>
+              {totals.protein.toFixed(1)}g / {profile.proteinGoal}g
+            </p>
+          </div>
+
+          <div style={cardStyle}>
+            <h3>🔥 Calories</h3>
+            <h2>
+              {totals.calories} / {profile.calorieGoal}
+            </h2>
+          </div>
+
+          <div style={cardStyle}>
+            <h3>⚡ Current Weight</h3>
+            <h2>{profile.weight || "--"}</h2>
+          </div>
+
+          <div style={cardStyle}>
+            <h3>🎯 Remaining Protein</h3>
+            <h2>
+              {Math.max(
+                profile.proteinGoal - totals.protein,
+                0
+              ).toFixed(0)}
+              g
+            </h2>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
             gap: "16px"
           }}
